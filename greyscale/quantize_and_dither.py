@@ -27,7 +27,7 @@ def quantize_and_dither(img, N=4):  #N is number of gray levels (should be a pow
                     img[i+1][j+1] = saturate(img[i+1][j+1][0] - error * 1/16)
     return img
 
-#N = 4   #gray levels (should be a power of 2)
+#N = 8   #gray levels (should be a power of 2)
 #
 ##filename = sys.argv[1]
 #img = cv2.imread('outputs/gray_image.png')

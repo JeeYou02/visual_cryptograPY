@@ -18,6 +18,6 @@ def key_gen_greyscale(img, grey_levels=4):
 #filename = sys.argv[1]
 #img = cv2.imread('inputs/' + filename)
 #
-#key = key_gen_greyscale(img)
+#key = key_gen_greyscale(img, 8)
 #
 #cv2.imwrite('outputs/key.png', key)

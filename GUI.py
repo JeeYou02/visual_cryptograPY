@@ -4,7 +4,8 @@ import numpy as np
 from greyscale.rgb_to_greyscale import rgb_to_greyscale
 from greyscale.quantize_and_dither import quantize_and_dither
 from greyscale.key_gen_greyscale import key_gen_greyscale
-from greyscale.encrypt_4levels import encrypt_4levels
+from greyscale.encrypt_greyscale import encrypt_image_4levels
+from greyscale.encrypt_greyscale import encrypt_image_8levels
 from binary.rgb_to_binary import rgb_to_binary
 from binary.key_gen_binary import key_gen_binary
 from binary.encrypt_binary import encrypt_binary
@@ -12,15 +13,20 @@ from tools.VC_conversion import VC_conversion_diagonal
 from tools.VC_conversion import VC_conversion_vertical
 from tools.VC_conversion import VC_conversion_horizontal
 from tools.VC_conversion import VC_conversion_greyscale_4levels
+from tools.VC_conversion import VC_conversion_greyscale_8levels
 from tools.superimpose import superimpose
 
 def preview_quantization(mode, img):
     if img is None:
         return None
     img = np.array(img)
-    if mode == "Greyscale":
+    if mode == "4 Levels Greyscale":
         grey_image = rgb_to_greyscale(img)
         quantized_image = quantize_and_dither(grey_image)
+        return Image.fromarray(quantized_image)
+    elif mode == "8 Levels Greyscale":
+        grey_image = rgb_to_greyscale(img)
+        quantized_image = quantize_and_dither(grey_image, N=8)
         return Image.fromarray(quantized_image)
     else:
         binary_image = rgb_to_binary(img)
@@ -38,19 +44,34 @@ def encrypt(image, mode, key_option, key_image=None):
     
     img = np.array(image)
 
-    if mode == "Greyscale":
+    if mode == "4 Levels Greyscale":
 
         if key_option == "Generate Random":
             key = key_gen_greyscale(img)
         else:
             key = np.array(key_image)
 
-        cypher = encrypt_4levels(img, key)
+        cypher = encrypt_image_4levels(img, key)
 
         cypher = Image.fromarray(cypher)
         key = Image.fromarray(key)
 
         return cypher, key, "✅ Encryption successful!"
+    
+    elif mode == "8 Levels Greyscale":
+
+        if key_option == "Generate Random":
+            key = key_gen_greyscale(img, 8)
+        else:
+            key = np.array(key_image)
+
+        cypher = encrypt_image_8levels(img, key)
+
+        cypher = Image.fromarray(cypher)
+        key = Image.fromarray(key)
+
+        return cypher, key, "✅ Encryption successful!"
+    
     else:
         if key_option == "Generate Random":
             key = key = key_gen_binary(img)
@@ -67,8 +88,12 @@ def vc_convert(mode, filling, img):
 
     img = np.array(img)
 
-    if mode == "Greyscale":
+    if mode == "4 Levels Greyscale":
         vc_img = VC_conversion_greyscale_4levels(img)
+        vc_img = Image.fromarray(vc_img)
+        return vc_img, "✅ VC Conversion successful!"
+    elif mode == "8 Levels Greyscale":
+        vc_img = VC_conversion_greyscale_8levels(img)
         vc_img = Image.fromarray(vc_img)
         return vc_img, "✅ VC Conversion successful!"
     else:
@@ -95,7 +120,8 @@ def superimpose_images(img1, img2):
 bin_hor_img = "images/bin_hor_scheme.png"
 bin_ver_img = "images/bin_ver_scheme.png"
 bin_diag_img = "images/bin_diag_scheme.png"
-grey_img = "images/greyscale_scheme.png"
+grey_4levels_img = "images/greyscale_4levels_scheme.png"
+grey_8levels_img = "images/greyscale_8levels_scheme.png"
 
 def update_preview(mode, filling):
     if mode == "Binary":
@@ -107,8 +133,10 @@ def update_preview(mode, filling):
             return bin_diag_img
         else:
             return None
-    elif mode == "Greyscale":
-        return grey_img
+    elif mode == "4 Levels Greyscale":
+        return grey_4levels_img
+    elif mode == "8 Levels Greyscale":
+        return grey_8levels_img
     else:
         return None
 
@@ -121,10 +149,10 @@ with gr.Blocks() as demo:
     with gr.Tab("Encrypt"):
 
         mode = gr.Radio(
-            ["Binary", "Greyscale"], 
+            ["Binary", "4 Levels Greyscale", "8 Levels Greyscale"], 
             value="Binary",
             label="Select the type of quantization you wish to apply to your input image",
-            info="Binary: 1-bit images (optimal for texts or black and white logos). Greyscale: 4-level greyscale images (optimal for detailed images)."
+            info="Binary: 1-bit images (optimal for texts or black and white logos). Greyscale: 4-level or 8-level greyscale images (optimal for detailed images)."
         )
         with gr.Row():
             with gr.Column():
@@ -165,10 +193,10 @@ with gr.Blocks() as demo:
         with gr.Row():
             with gr.Column():
                 mode = gr.Radio(
-                    ["Binary", "Greyscale"], 
+                    ["Binary", "4 Levels Greyscale", "8 Levels Greyscale"], 
                     value="Binary",
                     label="Choose Image Type",
-                    info="Binary: 1-bit images (black & white). Greyscale: 4-level greyscale images."
+                    info="Binary: 1-bit images (black & white). Greyscale: 4-level or 8-level greyscale images."
                 )
 
                 filling = gr.Radio(

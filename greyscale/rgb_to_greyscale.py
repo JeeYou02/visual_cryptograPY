@@ -9,7 +9,7 @@ def rgb_to_greyscale(img):
 #img = cv2.imread('inputs/lenna.png')
 #gray_img = rgb_to_greyscale(img)
 #cv2.imwrite('outputs/gray_image.png', gray_img)
-
+#
 #filename = sys.argv[1]
 #img = cv2.imread('inputs/' + filename)
 #
