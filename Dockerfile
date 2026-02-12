@@ -12,7 +12,7 @@ RUN python3 -m venv ./venv
 
 RUN venv/bin/python3 -m pip install --upgrade pip
 RUN venv/bin/pip install opencv-python-headless
-RUN venv/bin/pip install gradio
+RUN venv/bin/pip install "gradio<6.0.0"
 
 EXPOSE 8080
 
